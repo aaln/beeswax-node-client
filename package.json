@@ -1,19 +1,7 @@
 {
-  "name": "beeswax-client",
-  "version": "2.0.0",
+  "name": "beeswax-node-client",
+  "version": "0.1.0",
   "description": "TypeScript/JavaScript client library for the Beeswax DSP API",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch",
-    "lint": "eslint . --ext .ts",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "prepublishOnly": "npm run lint && npm run test && npm run build"
-  },
   "keywords": [
     "beeswax",
     "dsp",
@@ -25,19 +13,32 @@
     "ads",
     "marketing"
   ],
-  "author": "Your Name <your.email@example.com>",
-  "license": "MIT",
-  "type": "commonjs",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourusername/beeswax-client.git"
-  },
+  "homepage": "https://github.com/yourusername/beeswax-client#readme",
   "bugs": {
     "url": "https://github.com/yourusername/beeswax-client/issues"
   },
-  "homepage": "https://github.com/yourusername/beeswax-client#readme",
-  "engines": {
-    "node": ">=14.0.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/beeswax-client.git"
+  },
+  "license": "MIT",
+  "author": "Aaron Landy",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prepublishOnly": "npm run lint && npm run test && npm run build"
   },
   "dependencies": {
     "@types/form-data": "^2.2.1",
@@ -56,5 +57,8 @@
     "jest": "^30.0.4",
     "prettier": "^3.6.2",
     "ts-jest": "^29.4.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
