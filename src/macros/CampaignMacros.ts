@@ -1,10 +1,6 @@
 import { BeeswaxClient } from '../BeeswaxClient';
 import {
-  Campaign,
   LineItem,
-  Creative,
-  CreativeLineItem,
-  TargetingTemplate,
   CampaignCreationOptions,
   FullCampaignResponse,
   BeeswaxResponse
@@ -187,16 +183,16 @@ export class CampaignMacros {
 
       // Create new campaign - exclude read-only fields
       const {
-        campaign_id,
-        created_date,
-        updated_date,
-        create_date,
-        update_date,
-        push_status,
-        push_update,
-        campaign_spend,
-        buzz_key,
-        last_active,
+        campaign_id: _campaign_id,
+        created_date: _created_date,
+        updated_date: _updated_date,
+        create_date: _create_date,
+        update_date: _update_date,
+        push_status: _push_status,
+        push_update: _push_update,
+        campaign_spend: _campaign_spend,
+        buzz_key: _buzz_key,
+        last_active: _last_active,
         ...campaignFields
       } = originalCampaign;
       
@@ -238,20 +234,20 @@ export class CampaignMacros {
         for (const lineItem of lineItemsResponse.payload) {
           // Exclude read-only fields from line item
           const {
-            line_item_id,
-            created_date,
-            updated_date,
-            create_date,
-            update_date,
-            push_status,
-            push_update,
-            line_item_spend,
-            line_item_impressions,
-            buzz_key,
-            last_active,
-            line_item_version,
-            has_skad_assignment,
-            account_id,
+            line_item_id: _line_item_id,
+            created_date: _created_date,
+            updated_date: _updated_date,
+            create_date: _create_date,
+            update_date: _update_date,
+            push_status: _push_status,
+            push_update: _push_update,
+            line_item_spend: _line_item_spend,
+            line_item_impressions: _line_item_impressions,
+            buzz_key: _buzz_key,
+            last_active: _last_active,
+            line_item_version: _line_item_version,
+            has_skad_assignment: _has_skad_assignment,
+            account_id: _account_id,
             ...lineItemFields
           } = lineItem;
           
@@ -330,7 +326,7 @@ export class CampaignMacros {
         } else {
           failed++;
         }
-      } catch (error) {
+      } catch (_error) {
         failed++;
       }
 
@@ -406,7 +402,7 @@ export class CampaignMacros {
       };
     }
 
-    const campaign = campaignResponse.payload;
+    // const campaign = campaignResponse.payload; // Currently unused, kept for future use
 
     for (const item of lineItems) {
       try {

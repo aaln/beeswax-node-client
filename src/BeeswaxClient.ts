@@ -204,7 +204,7 @@ export class BeeswaxClient {
     }
 
     // Get file size if not provided
-    let assetDef: any = {
+    const assetDef: any = {
       advertiser_id: params.advertiser_id,
       creative_asset_name: params.creative_asset_name,
       notes: params.notes,
@@ -222,7 +222,7 @@ export class BeeswaxClient {
       try {
         const headResponse = await axios.head(params.sourceUrl);
         assetDef.size_in_bytes = parseInt(headResponse.headers['content-length'] || '0', 10);
-      } catch (error) {
+      } catch (_error) {
         console.warn('Unable to detect content-length of sourceUrl:', params.sourceUrl);
       }
     } else {

@@ -14,19 +14,19 @@ A TypeScript/JavaScript client library for the Beeswax DSP API.
 ## Installation
 
 ```bash
-npm install beeswax-client
+npm install beeswax-node-client
 ```
 
 or
 
 ```bash
-yarn add beeswax-client
+yarn add beeswax-node-client
 ```
 
 ## Quick Start
 
 ```typescript
-import { BeeswaxClient } from 'beeswax-client';
+import { BeeswaxClient } from 'beeswax-node-client';
 
 // Initialize the client
 const client = new BeeswaxClient({

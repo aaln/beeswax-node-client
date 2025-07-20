@@ -62,7 +62,7 @@ export class TargetingTemplateResource extends BaseResource<TargetingTemplate> {
   }
   
   // Override methods to handle deprecation warning
-  async create(body: Partial<TargetingTemplate>): Promise<BeeswaxResponse<TargetingTemplate>> {
+  async create(_body: Partial<TargetingTemplate>): Promise<BeeswaxResponse<TargetingTemplate>> {
     // The old endpoint is deprecated but might still work for some accounts
     // Return a warning message instead of failing
     return {
@@ -76,7 +76,7 @@ export class TargetingTemplateResource extends BaseResource<TargetingTemplate> {
     // For query, we can try the old endpoint
     try {
       return await super.query(body);
-    } catch (error) {
+    } catch (_error) {
       // If it fails, return empty array with warning
       return {
         success: true,

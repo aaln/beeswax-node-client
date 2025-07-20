@@ -26,6 +26,12 @@
   "type": "commonjs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "directories": {
     "example": "examples",
     "test": "test"
@@ -41,22 +47,22 @@
     "prepublishOnly": "npm run lint && npm run test && npm run build"
   },
   "dependencies": {
-    "@types/form-data": "^2.2.1",
-    "@types/node": "^24.0.14",
     "axios": "^1.10.0",
     "axios-retry": "^4.5.0",
-    "form-data": "^4.0.4",
-    "typescript": "^5.8.3"
+    "form-data": "^4.0.4"
   },
   "devDependencies": {
+    "@types/form-data": "^2.2.1",
     "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.14",
     "@typescript-eslint/eslint-plugin": "^8.37.0",
     "@typescript-eslint/parser": "^8.37.0",
     "dotenv": "^16.6.1",
-    "eslint": "^9.31.0",
+    "eslint": "^8.57.1",
     "jest": "^30.0.4",
     "prettier": "^3.6.2",
-    "ts-jest": "^29.4.0"
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=14.0.0"
