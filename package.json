@@ -1,0 +1,60 @@
+{
+  "name": "beeswax-client",
+  "version": "2.0.0",
+  "description": "TypeScript/JavaScript client library for the Beeswax DSP API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "prepublishOnly": "npm run lint && npm run test && npm run build"
+  },
+  "keywords": [
+    "beeswax",
+    "dsp",
+    "advertising",
+    "api",
+    "client",
+    "typescript",
+    "programmatic",
+    "ads",
+    "marketing"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/beeswax-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/beeswax-client/issues"
+  },
+  "homepage": "https://github.com/yourusername/beeswax-client#readme",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "@types/form-data": "^2.2.1",
+    "@types/node": "^24.0.14",
+    "axios": "^1.10.0",
+    "axios-retry": "^4.5.0",
+    "form-data": "^4.0.4",
+    "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
+    "dotenv": "^16.6.1",
+    "eslint": "^9.31.0",
+    "jest": "^30.0.4",
+    "prettier": "^3.6.2",
+    "ts-jest": "^29.4.0"
+  }
+}

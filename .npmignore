@@ -1,0 +1,43 @@
+# Source files
+src/
+test/
+examples/
+
+# Config files
+.eslintrc.js
+.prettierrc
+jest.config.js
+tsconfig.json
+.env*
+
+# Development files
+*.log
+*.tgz
+node_modules/
+coverage/
+.vscode/
+.idea/
+
+# Git files
+.git/
+.gitignore
+
+# Documentation source
+docs/
+*.md
+!README.md
+
+# Build artifacts
+*.map
+.DS_Store
+
+# Test files
+*.test.ts
+*.spec.ts
+test-*.js
+debug-*.js
+*.test.js
+simple-test.js
+
+# Other
+IMPROVEMENT_PLAN.md
