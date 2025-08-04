@@ -1,7 +1,8 @@
 // Test setup file
 import dotenv from 'dotenv';
 
-// Load environment variables from .env.test file
+// Load environment variables from .env.local file first, then .env.test as fallback
+dotenv.config({ path: '.env.local' });
 dotenv.config({ path: '.env.test' });
 
 // Set test timeout
