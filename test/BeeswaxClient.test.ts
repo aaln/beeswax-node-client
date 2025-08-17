@@ -54,7 +54,9 @@ describe('BeeswaxClient', () => {
           for (const cli of clis.payload || []) {
             await client.creativeLineItems.delete(cli.cli_id);
           }
-          await client.lineItems.delete(li.line_item_id);
+          if (li.line_item_id) {
+            await client.lineItems.delete(li.line_item_id);
+          }
         }
         await client.campaigns.delete(testCampaignId);
       } catch (error) {
@@ -76,8 +78,9 @@ describe('BeeswaxClient', () => {
       if (!client || !testAdvertiserId) return; // Skip if no client or advertiser
       const campaign = await client.campaigns.create({
         advertiser_id: testAdvertiserId,
-        campaign_name: `Jest Test Campaign ${Date.now()}`,
-        campaign_budget: 5000,
+        name: `Jest Test Campaign ${Date.now()}`,
+        budget: 5000,
+        budget_type: 2,
         start_date: new Date().toISOString().split('T')[0],
         end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         active: false
@@ -87,7 +90,7 @@ describe('BeeswaxClient', () => {
       expect(campaign.payload).toBeDefined();
       expect(campaign.payload?.campaign_id).toBeDefined();
       
-      testCampaignId = campaign.payload!.campaign_id;
+      testCampaignId = campaign.payload!.campaign_id!;
     });
 
     test('should query campaigns', async () => {
@@ -104,11 +107,11 @@ describe('BeeswaxClient', () => {
     test('should update a campaign', async () => {
       if (!client || !testCampaignId) return; // Skip if no client or campaign
       const updated = await client.campaigns.edit(testCampaignId, {
-        campaign_name: `Updated Jest Campaign ${Date.now()}`
+        name: `Updated Jest Campaign ${Date.now()}`
       });
 
       expect(updated.success).toBe(true);
-      expect(updated.payload?.campaign_name).toContain('Updated Jest Campaign');
+      expect(updated.payload?.name || updated.payload?.campaign_name).toContain('Updated Jest Campaign');
     });
   });
 
@@ -117,9 +120,21 @@ describe('BeeswaxClient', () => {
       if (!client || !testCampaignId) return; // Skip if no client or campaign
       const lineItem = await client.createLineItem({
         campaign_id: testCampaignId,
-        line_item_name: `Jest Line Item ${Date.now()}`,
-        line_item_budget: 1000,
-        cpm_bid: 2.50,
+        name: `Jest Line Item ${Date.now()}`,
+        type: 'banner',
+        spend_budget: {
+          lifetime: '1000',
+          include_fees: true
+        },
+        bidding: {
+          strategy: 'CPM',
+          values: {
+            cpm_bid: 2.50
+          },
+          pacing: 'none',
+          custom: false,
+          bid_shading_control: 'normal'
+        },
         active: false
       });
 
@@ -147,8 +162,8 @@ describe('BeeswaxClient', () => {
       if (!client || !testAdvertiserId) return; // Skip if no client or advertiser
       const creative = await client.creatives.create({
         advertiser_id: testAdvertiserId,
-        creative_name: `Jest Creative ${Date.now()}`,
-        creative_type: CreativeType.DISPLAY,
+        name: `Jest Creative ${Date.now()}`,
+        type: CreativeType.DISPLAY,
         creative_template_id: 1,
         width: 300,
         height: 250,
@@ -161,7 +176,7 @@ describe('BeeswaxClient', () => {
       expect(creative.payload).toBeDefined();
       expect(creative.payload?.creative_id).toBeDefined();
       
-      testCreativeId = creative.payload!.creative_id;
+      testCreativeId = creative.payload!.creative_id!;
     });
 
     test('should query creatives', async () => {
@@ -197,17 +212,18 @@ describe('BeeswaxClient', () => {
       if (!client || !testAdvertiserId) return; // Skip if no client or advertiser
       const fullCampaign = await client.macros.createFullCampaign({
         advertiser_id: testAdvertiserId,
-        campaign_name: `Jest Macro Campaign ${Date.now()}`,
-        campaign_budget: 10000,
+        name: `Jest Macro Campaign ${Date.now()}`,
+        budget: 10000,
+        budget_type: 2,
         start_date: new Date().toISOString().split('T')[0],
         end_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         line_items: [{
-          line_item_name: 'Jest Macro Line Item',
-          line_item_budget: 5000,
+          name: 'Jest Macro Line Item',
+          budget: 5000,
           bid_price: 3.00,
           creatives: [{
-            creative_name: 'Jest Macro Banner',
-            creative_type: 'display',
+            name: 'Jest Macro Banner',
+            type: 'display',
             width: 728,
             height: 90
           }]
@@ -229,7 +245,9 @@ describe('BeeswaxClient', () => {
           for (const cli of clis.payload || []) {
             await client.creativeLineItems.delete(cli.cli_id);
           }
-          await client.lineItems.delete(li.line_item_id);
+          if (li.line_item_id) {
+            await client.lineItems.delete(li.line_item_id);
+          }
         }
         
         await client.campaigns.delete(campaignId);

@@ -18,11 +18,11 @@ export class CampaignMacros {
       // Step 1: Create campaign
       const campaignData = {
         advertiser_id: options.advertiser_id,
-        campaign_name: options.campaign_name,
-        campaign_budget: options.campaign_budget,
+        name: options.name || options.campaign_name,
+        budget: options.budget || options.campaign_budget,
+        budget_type: options.budget_type || 2, // Ensure budget type is set
         start_date: options.start_date,
         end_date: options.end_date,
-        budget_type: 2, // Ensure budget type is set
         active: false // Start inactive until everything is set up
       };
 
@@ -32,6 +32,9 @@ export class CampaignMacros {
       }
 
       const campaign = campaignResponse.payload;
+      if (!campaign.campaign_id) {
+        throw new Error('Campaign ID not returned from API');
+      }
       const result: FullCampaignResponse = {
         campaign,
         line_items: [],
@@ -62,11 +65,30 @@ export class CampaignMacros {
         // Create line item using the helper method
         const lineItemResponse = await this.client.createLineItem({
           campaign_id: campaign.campaign_id,
-          line_item_name: lineItemOptions.line_item_name,
-          line_item_budget: lineItemOptions.line_item_budget,
-          cpm_bid: lineItemOptions.bid_price,
-          // Note: targeting is now handled via targeting_expression_id
-          active: false // Line items must be inactive until creatives are attached
+          name: lineItemOptions.name || lineItemOptions.line_item_name,
+          type: lineItemOptions.type || 'banner',
+          guaranteed: lineItemOptions.guaranteed || false,
+          currency: lineItemOptions.currency || 'USD',
+          budget_type: lineItemOptions.budget_type || 'spend including vendor fees',
+          spend_budget: lineItemOptions.spend_budget || {
+            lifetime: String(lineItemOptions.budget || lineItemOptions.line_item_budget || 0),
+            include_fees: true
+          },
+          bidding: lineItemOptions.bidding || {
+            strategy: 'CPM',
+            values: {
+              cpm_bid: lineItemOptions.bid_price || 3
+            },
+            pacing: 'none',
+            custom: false,
+            bid_shading_control: 'normal'
+          },
+          frequency_caps: lineItemOptions.frequency_caps,
+          targeting: lineItemOptions.targeting,
+          targeting_expression_id: lineItemOptions.targeting_expression_id,
+          start_date: lineItemOptions.start_date,
+          end_date: lineItemOptions.end_date,
+          active: lineItemOptions.active || false // Line items must be inactive until creatives are attached
         });
 
         if (!lineItemResponse.success || !lineItemResponse.payload) {
@@ -98,10 +120,8 @@ export class CampaignMacros {
             // Create creative
             const creativeData: any = {
               advertiser_id: options.advertiser_id,
-              creative_name: creativeOptions.creative_name,
-              creative_type: creativeOptions.creative_type === 'display' ? 0 : 
-                            creativeOptions.creative_type === 'video' ? 1 : 
-                            creativeOptions.creative_type === 'native' ? 2 : 0,
+              name: creativeOptions.name || creativeOptions.creative_name,
+              type: creativeOptions.type || creativeOptions.creative_type || 'display',
               creative_template_id: creativeOptions.creative_template_id || 1, // Default to 1 for standard display
               width: creativeOptions.width,
               height: creativeOptions.height,
@@ -110,8 +130,9 @@ export class CampaignMacros {
               active: false // Creatives need content before being activated
             };
 
-            if (creativeOptions.creative_attributes) {
-              creativeData.creative_attributes = creativeOptions.creative_attributes;
+            // Handle attributes using both old and new field names
+            if (creativeOptions.attributes || creativeOptions.creative_attributes) {
+              creativeData.attributes = creativeOptions.attributes || creativeOptions.creative_attributes;
             }
 
             if (creativeAssetId) {
@@ -120,7 +141,7 @@ export class CampaignMacros {
 
             const creativeResponse = await this.client.creatives.create(creativeData);
             if (!creativeResponse.success || !creativeResponse.payload) {
-              console.error('Failed to create creative:', creativeOptions.creative_name);
+              console.error('Failed to create creative:', creativeOptions.name || creativeOptions.creative_name);
               continue;
             }
 
@@ -128,6 +149,10 @@ export class CampaignMacros {
             result.creatives.push(creative);
 
             // Create creative-line item association
+            if (!creative.creative_id || !lineItem.line_item_id) {
+              console.error('Missing IDs for creative-line item association');
+              continue;
+            }
             const cliData = {
               creative_id: creative.creative_id,
               line_item_id: lineItem.line_item_id,
@@ -198,7 +223,7 @@ export class CampaignMacros {
       
       const newCampaignData = {
         ...campaignFields,
-        campaign_name: newName
+        name: newName
       };
 
       if (options?.start_date) {
@@ -217,6 +242,9 @@ export class CampaignMacros {
       }
 
       const newCampaign = newCampaignResponse.payload;
+      if (!newCampaign.campaign_id) {
+        throw new Error('New campaign ID not returned from API');
+      }
       const result: FullCampaignResponse = {
         campaign: newCampaign,
         line_items: [],
@@ -272,6 +300,10 @@ export class CampaignMacros {
 
               if (cliResponse.success && cliResponse.payload) {
                 for (const cli of cliResponse.payload) {
+                  if (!newLineItemResponse.payload.line_item_id) {
+                    console.error('Missing line item ID for CLI association');
+                    continue;
+                  }
                   const newCliData = {
                     creative_id: cli.creative_id,
                     line_item_id: newLineItemResponse.payload.line_item_id,
@@ -408,10 +440,23 @@ export class CampaignMacros {
       try {
         const response = await this.client.createLineItem({
           campaign_id: campaignId,
-          line_item_name: item.name,
-          line_item_budget: item.budget,
-          cpm_bid: item.bid_price,
-          // Note: targeting is now handled via targeting_expression_id
+          name: item.name,
+          type: 'banner',
+          budget_type: 'spend including vendor fees',
+          spend_budget: {
+            lifetime: String(item.budget),
+            include_fees: true
+          },
+          bidding: {
+            strategy: 'CPM',
+            values: {
+              cpm_bid: item.bid_price || 3
+            },
+            pacing: 'none',
+            custom: false,
+            bid_shading_control: 'normal'
+          },
+          targeting: item.targeting,
           active: false // Line items must be inactive until creatives are attached
         });
         if (response.success && response.payload) {

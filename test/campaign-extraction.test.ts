@@ -45,7 +45,7 @@ describe('Campaign 667 Extraction', () => {
           console.log(`\nInstead, extracting campaign ${firstCampaign.campaign_id}: ${firstCampaign.campaign_name}`);
           
           // Extract the first available campaign
-          await extractCampaignData(client, firstCampaign.campaign_id);
+          await extractCampaignData(client, firstCampaign.campaign_id!);
         }
         return;
       }
@@ -88,7 +88,7 @@ async function extractCampaignData(client: BeeswaxClient, campaignId: number) {
     });
     
     if (cliResponse.success && cliResponse.payload) {
-      creativeLineItemMap.set(lineItem.line_item_id, cliResponse.payload);
+      creativeLineItemMap.set(lineItem.line_item_id!, cliResponse.payload);
       
       // Collect unique creative IDs
       cliResponse.payload.forEach(cli => {
@@ -130,7 +130,7 @@ async function extractCampaignData(client: BeeswaxClient, campaignId: number) {
     campaign,
     line_items: lineItems.map(li => ({
       ...li,
-      creative_associations: creativeLineItemMap.get(li.line_item_id) || []
+      creative_associations: creativeLineItemMap.get(li.line_item_id!) || []
     })),
     creatives
   };

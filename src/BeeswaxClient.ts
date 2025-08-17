@@ -182,8 +182,18 @@ export class BeeswaxClient {
       config.params = options?.params;
     }
 
+    // Debug logging
+    if (process.env.DEBUG_BEESWAX) {
+      console.log(`BeeswaxClient.request - ${method} ${endpoint}`);
+      console.log('Request data:', JSON.stringify(config.data, null, 2));
+    }
+    
     try {
       const response = await this.axiosInstance.request(config);
+      
+      if (process.env.DEBUG_BEESWAX) {
+        console.log('Response:', JSON.stringify(response.data, null, 2));
+      }
       
       if (response.data.success === false) {
         throw new Error(JSON.stringify(response.data));
@@ -191,6 +201,9 @@ export class BeeswaxClient {
 
       return response.data;
     } catch (error: any) {
+      if (process.env.DEBUG_BEESWAX) {
+        console.log('Error response:', error.response?.data || error.message);
+      }
       if (error.response?.data) {
         throw error.response.data;
       }
@@ -287,13 +300,46 @@ export class BeeswaxClient {
   // Helper method to create a line item with sensible defaults
   async createLineItem(params: {
     campaign_id: number;
-    line_item_name: string;
-    line_item_budget: number;
-    cpm_bid?: number;
+    name?: string;
+    line_item_name?: string; // Deprecated, use 'name' instead
+    type?: string;
+    budget?: number;
+    line_item_budget?: number; // Deprecated, use 'budget' instead
+    spend_budget?: {
+      lifetime?: string | number;
+      daily?: string | number;
+      include_fees?: boolean;
+    };
+    bidding?: {
+      strategy?: string;
+      values?: {
+        cpm_bid?: number;
+        cpc_bid?: number;
+        cpa_bid?: number;
+      };
+      pacing?: string;
+      custom?: boolean;
+      bid_shading_control?: string;
+    };
+    cpm_bid?: number; // Deprecated, use bidding.values.cpm_bid instead
+    frequency_caps?: {
+      id_type?: string;
+      use_fallback?: boolean;
+      id_vendor?: string | null;
+      limits?: Array<{
+        duration: number;
+        impressions: string | number;
+      }>;
+    };
     start_date?: string;
     end_date?: string;
     targeting_expression_id?: number;
+    targeting?: any;
     active?: boolean;
+    guaranteed?: boolean;
+    currency?: string;
+    budget_type?: string;
+    [key: string]: any;
   }): Promise<BeeswaxResponse<any>> {
     // Get campaign details to inherit settings
     const campaignResponse = await this.campaigns.find(params.campaign_id);
@@ -304,28 +350,31 @@ export class BeeswaxClient {
     const campaign = campaignResponse.payload;
     
     // Build line item with all required fields
-    const lineItemData = {
+    // Support both old and new field names
+    const lineItemData: any = {
       advertiser_id: campaign.advertiser_id,
       campaign_id: params.campaign_id,
-      line_item_name: params.line_item_name,
-      line_item_budget: params.line_item_budget,
-      line_item_type_id: 0,
-      budget_type: 2,
-      currency: campaign.currency || 'USD',
+      name: params.name || params.line_item_name,
+      type: params.type || 'banner',
+      guaranteed: params.guaranteed !== undefined ? params.guaranteed : false,
+      currency: params.currency || campaign.currency || 'USD',
+      budget_type: params.budget_type || 'spend including vendor fees',
       
-      // Bidding configuration
-      bidding: {
-        bidding_strategy: 'CPM_PACED',
+      // Handle spend_budget
+      spend_budget: params.spend_budget || {
+        lifetime: String(params.budget || params.line_item_budget || 0),
+        include_fees: true
+      },
+      
+      // Bidding configuration - use provided bidding or construct from legacy params
+      bidding: params.bidding || {
+        strategy: 'CPM',
         values: {
           cpm_bid: params.cpm_bid || 3
         },
-        pacing: 'lifetime',
-        bid_shading: true,
-        pacing_behavior: 'even',
-        catchup_behavior: 'even',
-        bid_shading_win_rate_control: 'NORMAL',
+        pacing: 'none',
         custom: false,
-        multiplier: 1
+        bid_shading_control: 'normal'
       },
       
       // Dates - inherit from campaign if not provided
@@ -334,12 +383,22 @@ export class BeeswaxClient {
       
       // Other settings
       active: params.active !== undefined ? params.active : false,
-      guaranteed: false,
-      creative_weighting_method: 'RANDOM',
-      frequency_cap: [],
-      frequency_cap_type: 0,
-      frequency_cap_vendor: null
+      
+      // Frequency caps - use provided or set to null (matching API expectations)
+      frequency_caps: params.frequency_caps || null
     };
+    
+    // Add any additional custom fields from params (except the ones we've already handled)
+    const excludeFields = ['campaign_id', 'name', 'line_item_name', 'type', 'guaranteed', 
+                          'currency', 'budget_type', 'spend_budget', 'bidding', 'cpm_bid',
+                          'frequency_caps', 'start_date', 'end_date', 'active', 'budget', 
+                          'line_item_budget'];
+    
+    for (const key in params) {
+      if (!excludeFields.includes(key) && params[key] !== undefined) {
+        lineItemData[key] = params[key];
+      }
+    }
     
     // Add targeting expression if provided
     if (params.targeting_expression_id) {

@@ -34,8 +34,9 @@ describe('Integration Tests', () => {
       // 3. Create campaign
       const campaign = await client.campaigns.create({
         advertiser_id: advertiserId,
-        campaign_name: `Integration Test ${Date.now()}`,
-        campaign_budget: 5000,
+        name: `Integration Test ${Date.now()}`,
+        budget: 5000,
+        budget_type: 2,
         start_date: new Date().toISOString().split('T')[0],
         end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         active: false
@@ -46,10 +47,22 @@ describe('Integration Tests', () => {
 
       // 4. Create line item
       const lineItem = await client.createLineItem({
-        campaign_id: campaignId,
-        line_item_name: 'Integration Test Line Item',
-        line_item_budget: 1000,
-        cpm_bid: 2.50,
+        campaign_id: campaignId!,
+        name: 'Integration Test Line Item',
+        type: 'banner',
+        spend_budget: {
+          lifetime: '1000',
+          include_fees: true
+        },
+        bidding: {
+          strategy: 'CPM',
+          values: {
+            cpm_bid: 2.50
+          },
+          pacing: 'none',
+          custom: false,
+          bid_shading_control: 'normal'
+        },
         active: false
       });
       
@@ -59,8 +72,8 @@ describe('Integration Tests', () => {
       // 5. Create creative
       const creative = await client.creatives.create({
         advertiser_id: advertiserId,
-        creative_name: 'Integration Test Creative',
-        creative_type: 0,
+        name: 'Integration Test Creative',
+        type: 0,
         creative_template_id: 1,
         width: 300,
         height: 250,
@@ -88,8 +101,10 @@ describe('Integration Tests', () => {
 
       // 8. Clean up
       await client.creativeLineItems.delete(cli.payload!.cli_id);
-      await client.lineItems.delete(lineItemId);
-      await client.campaigns.delete(campaignId);
+      await client.lineItems.delete(lineItemId!);
+      if (campaignId) {
+        await client.campaigns.delete(campaignId);
+      }
     });
   });
 
@@ -116,8 +131,9 @@ describe('Integration Tests', () => {
       
       const result = await client.campaigns.create({
         advertiser_id: 999999, // Non-existent advertiser
-        campaign_name: 'Invalid Campaign',
-        campaign_budget: 5000,
+        name: 'Invalid Campaign',
+        budget: 5000,
+        budget_type: 2,
         start_date: new Date().toISOString().split('T')[0],
         end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         active: false
