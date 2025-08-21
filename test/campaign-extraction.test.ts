@@ -1,4 +1,5 @@
 import { BeeswaxClient } from '../src';
+import { writeFileSync } from 'fs';
 
 describe('Campaign 667 Extraction', () => {
   let client: BeeswaxClient;
@@ -139,8 +140,7 @@ async function extractCampaignData(client: BeeswaxClient, campaignId: number) {
   console.log(JSON.stringify(fullCampaignData, null, 2));
   
   // Write to file for reference
-  const fs = require('fs');
   const outputPath = `./campaign-${campaignId}-export.json`;
-  fs.writeFileSync(outputPath, JSON.stringify(fullCampaignData, null, 2));
+  writeFileSync(outputPath, JSON.stringify(fullCampaignData, null, 2));
   console.log(`\nFull campaign data exported to: ${outputPath}`);
 }
