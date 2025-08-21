@@ -1,6 +1,6 @@
 {
   "name": "beeswax-node-client",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "TypeScript/JavaScript client library for the Beeswax DSP API",
   "keywords": [
     "beeswax",
